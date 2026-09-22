@@ -1885,3 +1885,71 @@ window.addEventListener('load', () => ScrollTrigger.refresh());
     });
   });
 })();
+/* =====================================================================
+   PACKAGE "WHAT'S INSIDE" MODALS — open from pricing cards, play the
+   device videos on open, pause on close, stop Lenis while open.
+===================================================================== */
+(function initPkgModals() {
+  const modals = document.querySelectorAll('.pkg-modal');
+  if (!modals.length) return;
+
+  // move modals to <body> so no transformed ancestor can break position:fixed
+  modals.forEach((m) => document.body.appendChild(m));
+
+  function stopScroll() {
+    document.body.classList.add('pkg-lock');
+    if (typeof lenis !== 'undefined') lenis.stop();
+  }
+  function startScroll() {
+    document.body.classList.remove('pkg-lock');
+    if (typeof lenis !== 'undefined') lenis.start();
+  }
+
+  function open(id) {
+    const m = document.getElementById(id);
+    if (!m) return;
+    m.classList.add('is-open');
+    m.scrollTop = 0;
+    stopScroll();
+    m.querySelectorAll('video').forEach((v) => {
+      v.muted = true;
+      v.currentTime = 0;
+      v.play().catch(() => {});
+    });
+  }
+
+  function close(m) {
+    m.classList.remove('is-open');
+    m.querySelectorAll('video').forEach((v) => v.pause());
+    startScroll();
+  }
+
+  document.querySelectorAll('[data-pkg-open]').forEach((btn) => {
+    btn.addEventListener('click', () => open(btn.getAttribute('data-pkg-open')));
+  });
+
+  modals.forEach((m) => {
+    m.addEventListener('click', (e) => {
+      if (e.target === m || e.target.closest('[data-pkg-close]')) close(m);
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.pkg-modal.is-open').forEach(close);
+  });
+})();
+/* Remove duplicate "See What's Inside" buttons */
+(function dedupeInsideBtns(){
+  function run(){
+    document.querySelectorAll('.aw-plan-card').forEach(function(card){
+      var btns = Array.from(card.querySelectorAll('button, a')).filter(function(el){
+        return /what'?s inside/i.test(el.textContent);
+      });
+      btns.slice(1).forEach(function(b){ b.remove(); });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  setTimeout(run, 500); // catches buttons injected after load
+})();
