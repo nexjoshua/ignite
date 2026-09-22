@@ -1953,3 +1953,28 @@ window.addEventListener('load', () => ScrollTrigger.refresh());
   else run();
   setTimeout(run, 500); // catches buttons injected after load
 })();
+/* keep the desktop menu centred between the logo and the right-hand actions */
+(function centerNav() {
+  const nav = document.querySelector('.topnav');
+  const brand = document.querySelector('.brand');
+  const actions = document.querySelector('.topnav-actions');
+  if (!nav || !brand || !actions) return;
+  const mq = window.matchMedia('(min-width: 1024px)');
+
+  function update() {
+    if (!mq.matches) {
+      nav.style.removeProperty('--nav-left');
+      nav.style.removeProperty('--nav-right');
+      return;
+    }
+    const b = brand.getBoundingClientRect();
+    const a = actions.getBoundingClientRect();
+    nav.style.setProperty('--nav-left', b.right + 'px');
+    nav.style.setProperty('--nav-right', (document.documentElement.clientWidth - a.left) + 'px');
+  }
+
+  update();
+  window.addEventListener('resize', update);
+  window.addEventListener('load', update);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(update);
+})();
