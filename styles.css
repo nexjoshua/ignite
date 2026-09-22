@@ -3831,3 +3831,75 @@ body.pkg-lock{overflow:hidden}
   object-fit: cover;       /* crops photos to fill the circle without stretching */
   border-radius: 50%;
 }
+/* =====================================================================
+   MOBILE RESPONSIVE PACK
+===================================================================== */
+
+/* centred "See what's included…" links inside aw sections */
+.aw-section-inner > .center-btn{display:table;margin:1.5rem auto 0}
+
+/* ---------- Ad Creatives: swipe carousel on phones/tablets ---------- */
+@media(max-width:860px){
+  .creatives-deck{
+    display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:1rem;
+    width:calc(100% + 2.2rem);max-width:none;height:auto;
+    margin:1.5rem -1.1rem 0;padding:1.25rem 1.1rem 1.5rem;
+    overflow-x:auto;overflow-y:visible;
+    scroll-snap-type:x mandatory;scroll-padding:0 1.1rem;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+  }
+  .creatives-deck::-webkit-scrollbar{display:none}
+  .creative-card{
+    position:relative;flex:0 0 42%;max-width:280px;width:auto;height:auto;aspect-ratio:4/5;
+    scroll-snap-align:start;padding:1rem;gap:.35rem;transform:none !important;
+  }
+  .creative-card .creative-label{font-size:.95rem}
+  .creative-card .creative-click-hint{opacity:1;transform:none}
+  .creatives-deck + .fineprint::before{
+    content:"← Swipe to browse →";display:block;margin-bottom:.6rem;
+    font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-bright);
+  }
+}
+@media(max-width:560px){
+  .creative-card{flex-basis:72%}
+}
+@media(hover:none){
+  .creative-card:hover{transform:none !important;box-shadow:0 24px 50px -16px rgba(0,0,0,.55)}
+}
+
+/* ---------- general mobile spacing ---------- */
+@media(max-width:760px){
+  .aw-section{padding:3.5rem 1.1rem}
+  .aw-h2{margin-bottom:1.75rem}
+  .section-head h2{font-size:1.75rem}
+  .aw-why-head{flex-direction:column;align-items:flex-start}
+  .aw-plan-grid-3 .aw-plan-card.is-highlight{transform:none}
+  .aw-pricing-shell{padding:2rem 1.1rem}
+  .page-hero{padding:120px 16px 50px}
+  .tornado-scene{overflow:hidden}
+  .aw-cta-banner,.aw-final-cta{padding:2.5rem 1.25rem}
+}
+
+/* ---------- 5-link nav: stop overlap between 1024–1240px ---------- */
+@media(min-width:1024px) and (max-width:1240px){
+  .topnav-social{display:none}
+  .navlink{padding:.5rem .7rem;font-size:.86rem}
+}
+/* =====================================================================
+   HEADER — menu centred on the page (same centre line as the hero),
+   logo vertically aligned with the menu text
+===================================================================== */
+@media(min-width:1024px){
+  .nav-links{
+    left:50% !important;
+    right:auto !important;
+    width:auto;
+    transform:translate(-50%,-50%) !important;
+    justify-content:center;
+  }
+}
+
+/* logo sat ~5px higher than the menu text */
+.brand-logo{ transform:translateY(5px); }
