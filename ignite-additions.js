@@ -16,7 +16,7 @@
       title: 'Foundation', price: '£500 / month',
       intro: 'The core system every trade needs to stop losing leads and look credible online. Here is exactly what gets built for you.',
       items: [
-        { device: 'mac', title: 'Responsive Website', desc: 'A fast, mobile-first website built from a niche-tested snapshot, with your reviews, services and booking built in from day one.', img: './images/plan-website.jpg', video: './videos/website-demo-hetas.mp4' },
+        { device: 'mac', title: 'Responsive Website', desc: 'A fast, mobile-first website built from a niche-tested snapshot, with your reviews, services and booking built in from day one.', img: './images/plan-website.jpg', video: 'https://assets.cdn.filesafe.space/hNOfqrviXSOAm48tJDLo/media/6ab218d3bdaa5e26a985c4d4.mp4' },
         { device: 'phone', title: 'Google Reviews Funnel', desc: 'The moment a job is done, your customer gets a text with a one-tap link to leave a Google review.', img: './images/google-reviews-demo.png', video: '' },
         { device: 'phone', title: 'Missed-Call Text Back', desc: 'Miss a call and the caller gets an instant text, so the lead never goes cold while you are on a job.', img: './images/plan-missed-call.jpg', video: './videos/reviews-google.mp4' },
         { device: 'phone', title: 'AI Booking System', desc: 'Customers book straight onto your real calendar through a conversation, with no back-and-forth.', img: './images/ai-booking-demo.png', video: '' },
