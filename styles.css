@@ -3812,3 +3812,22 @@ body.pkg-lock{overflow:hidden}
 /* ---------- review avatar photos (initials show if photo missing) ---------- */
 .aw-review-avatar{position:relative;overflow:hidden}
 .aw-review-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;z-index:1}
+.aw-review-avatar {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #0b1a14;          /* makes the fallback initials readable on the green */
+  font-weight: 700;
+  font-size: 13px;
+}
+.aw-review-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;       /* crops photos to fill the circle without stretching */
+  border-radius: 50%;
+}
