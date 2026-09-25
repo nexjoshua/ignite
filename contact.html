@@ -187,36 +187,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/darkroomengineering/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="./script.js?v=5"></script>
-  <script>
-(function () {
-  const WEBHOOK_URL = "https://services.leadconnectorhq.com/hooks/RbvS9Jq1V3fFZAK1GKOP/webhook-trigger/87033199-a74d-42a6-b95f-be3ef023201a";
-  const form = document.getElementById("contactForm");
-
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      const data = {
-        first_name: form.fname.value.trim(),
-        last_name: form.lname.value.trim(),
-        email: form.email.value.trim(),
-        service_interest: form.service.value,
-        message: form.message.value.trim(),
-        page_url: window.location.href,
-        submitted_at: new Date().toISOString()
-      };
-
-      fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      }).catch(function (err) {
-        console.error("Webhook send failed:", err);
-      });
-    });
-  }
-})();
-</script>
 
 </body>
 </html>
