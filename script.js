@@ -522,16 +522,10 @@ document.querySelectorAll('.nav-links a').forEach((a) => {
   });
 });
 
-/* ================= EmailJS contact form ================= */
+/* ================= Webhook contact form ================= */
 const contactForm = document.getElementById('contactForm');
-if (contactForm && window.emailjs) {
-  // TODO: replace with Ignite's own EmailJS public key (Joshua's Ainex key
-  // will not deliver mail for this account — create a new EmailJS service
-  // for ignite@... or hello@ignite... and swap the three values below).
-  emailjs.init('REPLACE_WITH_IGNITE_EMAILJS_PUBLIC_KEY');
-
-  // Where to send visitors after a successful submission.
-  // Update this path if your thank-you page lives somewhere else.
+if (contactForm) {
+  const WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/RbvS9Jq1V3fFZAK1GKOP/webhook-trigger/87033199-a74d-42a6-b95f-be3ef023201a';
   const THANK_YOU_URL = 'thank-you.html';
 
   contactForm.addEventListener('submit', function (e) {
@@ -547,10 +541,6 @@ if (contactForm && window.emailjs) {
 
     errMsg.classList.remove('show');
 
-    // preventDefault() above stops the browser from ever running its native
-    // required/type="email" validation, so we trigger it manually here.
-    // This also catches malformed emails (e.g. "asdf"), which the old
-    // "just check it's non-empty" logic silently let through.
     if (!contactForm.checkValidity()) {
       contactForm.reportValidity();
       errMsg.textContent = 'Please fill in your name and a valid email address.';
@@ -561,26 +551,32 @@ if (contactForm && window.emailjs) {
     btn.disabled = true;
     btn.textContent = 'Sending…';
 
-    const templateParams = {
-      from_name: fname + (lname ? ' ' + lname : ''),
-      from_email: email,
-      service_type: service || 'Not specified',
+    const payload = {
+      first_name: fname,
+      last_name: lname,
+      email: email,
+      service_interest: service || 'Not specified',
       message: message || 'No message provided.',
+      page_url: window.location.href,
+      submitted_at: new Date().toISOString()
     };
 
-    emailjs.send('REPLACE_WITH_SERVICE_ID', 'REPLACE_WITH_TEMPLATE_ID', templateParams).then(
-      function () {
-        // Redirect to the thank-you page instead of showing an inline message.
+    fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error('Webhook returned ' + response.status);
         window.location.href = THANK_YOU_URL;
-      },
-      function (error) {
-        console.error('EmailJS error:', error);
+      })
+      .catch(function (error) {
+        console.error('Webhook error:', error);
         btn.disabled = false;
         btn.textContent = 'Send Message →';
         errMsg.textContent = 'Something went wrong — please try again or email me directly.';
         errMsg.classList.add('show');
-      }
-    );
+      });
   });
 }
 
