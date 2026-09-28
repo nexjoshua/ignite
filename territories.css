@@ -177,3 +177,8 @@ body.tc2-lock{overflow:hidden}
   .terr-teaser-search .btn{width:100%}
   .terr-teaser-stat strong{font-size:1.35rem}
 }
+/* ---------- webhook form states ---------- */
+.tc2-form-error{display:none;margin:.25rem 0 .75rem;padding:.7rem .9rem;border-radius:8px;font-size:.82rem;line-height:1.45;color:#ff8a8a;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.3)}
+.tc2-form-error.show{display:block}
+.tc2-form-error a{color:var(--accent-bright)}
+.tc2-modal-submit:disabled{opacity:.65;cursor:wait;transform:none;filter:none}
