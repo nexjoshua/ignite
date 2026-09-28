@@ -1,9 +1,13 @@
 /* =====================================================================
-   TERRITORY CHECKER — moved out of index.html. Desktop: map + filterable
-   grid. Mobile (<=760px): search only, results appear as you type.
+   TERRITORY CHECKER — desktop: map + filterable grid. Mobile (<=760px):
+   search only, results appear as you type.
    Supports ?q=BS in the URL (homepage teaser search sends people here).
+   Reserve + Waitlist forms POST to the GoHighLevel inbound webhook.
 ===================================================================== */
 (function () {
+  /* ---------- GoHighLevel inbound webhook ---------- */
+  const TERRITORY_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/RbvS9Jq1V3fFZAK1GKOP/webhook-trigger/d47afafb-65d5-4db8-b57b-dad9c7b33db4';
+
   const AREAS = [
     {code:'AB',name:'Aberdeen',pop:500309,districts:33},{code:'AL',name:'St Albans',pop:250427,districts:10},
     {code:'B',name:'Birmingham',pop:1904658,districts:76},{code:'BA',name:'Bath',pop:434166,districts:19},
@@ -97,6 +101,40 @@
   function lockScroll(on) {
     document.body.classList.toggle('tc2-lock', on);
     if (typeof lenis !== 'undefined') on ? lenis.stop() : lenis.start();
+  }
+
+  /* ---------- send submission to GoHighLevel ---------- */
+  function sendToWebhook(payload) {
+    return fetch(TERRITORY_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then((res) => {
+      if (!res.ok) throw new Error('Webhook returned ' + res.status);
+      return res;
+    });
+  }
+
+  function buildPayload(area, kind, name, email) {
+    const parts = (name || '').trim().split(/\s+/);
+    return {
+      form_type: kind === 'reserve' ? 'territory_reservation' : 'territory_waitlist',
+      tags: kind === 'reserve' ? 'territory-reservation' : 'territory-waitlist',
+      full_name: name || '',
+      first_name: parts[0] || '',
+      last_name: parts.slice(1).join(' '),
+      email: email,
+      territory_code: area.code,
+      territory_name: area.name,
+      territory_label: area.code + ' — ' + area.name,
+      territory_status: kind === 'reserve' ? 'available' : 'taken',
+      estimated_homes: area.homes,
+      districts: area.districts,
+      estimated_leads_per_year: area.leads,
+      source: 'Ignite Territory Checker',
+      page_url: window.location.href,
+      submitted_at: new Date().toISOString()
+    };
   }
 
   /* ---------- matching: exact code > code prefix > town name ---------- */
@@ -201,37 +239,81 @@
 
   function openModal(code) {
     current = AREAS.find((a) => a.code === code); if (!current) return;
+    const area = current;
     const isTaken = taken.has(code);
     const body = $('tc2ModalBody');
     if (isTaken) {
       const info = taken.get(code);
       body.innerHTML = '<div class="tc2-modal-icon lock">&#128274;</div>'
-        + '<h3>' + current.code + ' — ' + current.name + '</h3>'
+        + '<h3>' + area.code + ' — ' + area.name + '</h3>'
         + '<p class="sub">This territory is currently claimed' + (info.since ? ' &middot; since ' + info.since : '') + '. Join the waitlist and we\u2019ll let you know the moment a spot opens.</p>'
-        + metricsHtml(current)
-        + '<form id="tc2Form"><div class="tc2-field"><label for="tc2Email">Email Address</label><input type="email" id="tc2Email" required placeholder="you@company.co.uk"></div>'
-        + '<button type="submit" class="tc2-modal-submit">Join Waitlist</button></form>';
+        + metricsHtml(area)
+        + '<form id="tc2Form" novalidate>'
+        + '<div class="tc2-field"><label for="tc2Name">Full Name</label><input type="text" id="tc2Name" required placeholder="Your name" autocomplete="name"></div>'
+        + '<div class="tc2-field"><label for="tc2Email">Email Address</label><input type="email" id="tc2Email" required placeholder="you@company.co.uk" autocomplete="email"></div>'
+        + '<div class="tc2-form-error" id="tc2FormError" role="alert"></div>'
+        + '<button type="submit" class="tc2-modal-submit" id="tc2Submit">Join Waitlist</button></form>';
     } else {
       body.innerHTML = '<div class="tc2-modal-icon ok">&#10003;</div>'
-        + '<h3>' + current.code + ' — ' + current.name + '</h3>'
+        + '<h3>' + area.code + ' — ' + area.name + '</h3>'
         + '<p class="sub">Good news — this territory is open. Reserve it now and we\u2019ll be in touch within one business day to confirm.</p>'
-        + metricsHtml(current)
-        + '<form id="tc2Form"><div class="tc2-field"><label for="tc2Name">Full Name</label><input type="text" id="tc2Name" required placeholder="Your name"></div>'
-        + '<div class="tc2-field"><label for="tc2Email">Email Address</label><input type="email" id="tc2Email" required placeholder="you@company.co.uk"></div>'
-        + '<button type="submit" class="tc2-modal-submit">Reserve This Territory →</button></form>';
+        + metricsHtml(area)
+        + '<form id="tc2Form" novalidate>'
+        + '<div class="tc2-field"><label for="tc2Name">Full Name</label><input type="text" id="tc2Name" required placeholder="Your name" autocomplete="name"></div>'
+        + '<div class="tc2-field"><label for="tc2Email">Email Address</label><input type="email" id="tc2Email" required placeholder="you@company.co.uk" autocomplete="email"></div>'
+        + '<div class="tc2-form-error" id="tc2FormError" role="alert"></div>'
+        + '<button type="submit" class="tc2-modal-submit" id="tc2Submit">Reserve This Territory →</button></form>';
     }
-    $('tc2Form').addEventListener('submit', (e) => {
+
+    const form = $('tc2Form');
+    const submitBtn = $('tc2Submit');
+    const errEl = $('tc2FormError');
+    const btnLabel = submitBtn.textContent;
+
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
-      if (isTaken) return showSuccess(current, 'waitlist');
-      const name = $('tc2Name').value.trim() || 'Reserved';
-      const d = { status: 'taken', owner: name, since: new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) };
-      try { localStorage.setItem(sk(current.code), JSON.stringify(d)); } catch (err) {}
-      taken.set(current.code, d);
-      renderGrid(); renderMap(); renderMarquee();
-      showSuccess(current, 'reserved');
+      errEl.classList.remove('show');
+
+      const nameEl = $('tc2Name');
+      const emailEl = $('tc2Email');
+      const name = nameEl.value.trim();
+      const email = emailEl.value.trim();
+
+      if (!form.checkValidity() || !name || !email) {
+        form.reportValidity();
+        errEl.textContent = 'Please enter your name and a valid email address.';
+        errEl.classList.add('show');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+
+      const kind = isTaken ? 'waitlist' : 'reserve';
+      sendToWebhook(buildPayload(area, kind, name, email))
+        .then(() => {
+          if (kind === 'reserve') {
+            const d = { status: 'taken', owner: name, since: new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) };
+            try { localStorage.setItem(sk(area.code), JSON.stringify(d)); } catch (err) {}
+            taken.set(area.code, d);
+            renderGrid(); renderMap(); renderMarquee();
+            showSuccess(area, 'reserved');
+          } else {
+            showSuccess(area, 'waitlist');
+          }
+        })
+        .catch((err) => {
+          console.error('Territory webhook error:', err);
+          submitBtn.disabled = false;
+          submitBtn.textContent = btnLabel;
+          errEl.innerHTML = 'Something went wrong — please try again, or email <a href="mailto:hello@igniteagency.co">hello@igniteagency.co</a>.';
+          errEl.classList.add('show');
+        });
     });
+
     $('tc2ModalOverlay').classList.add('open');
     lockScroll(true);
+    setTimeout(() => { const n = $('tc2Name'); if (n && !MOBILE.matches) n.focus(); }, 250);
   }
 
   function showSuccess(a, kind) {
