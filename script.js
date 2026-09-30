@@ -1221,7 +1221,7 @@ window.addEventListener('load', () => ScrollTrigger.refresh());
           <span class="tag">GHL Automation</span>
         </div>
         <div class="pv-title">See It Running, Live</div>
-        <div class="pv-desc">The moment a job wraps up, the customer gets a text asking for a Google review. Miss a call, and the caller gets an instant text back so the lead never goes cold. Both run automatically, 24/7, with zero manual work &mdash; included on every Foundation and Growth package.</div>
+        <div class="pv-desc">The moment a job wraps up, the customer gets a text asking for a Google review. Miss a call, and the caller gets an instant text back so the lead never goes cold. Both run automatically, 24/7, with zero manual work &mdash; Google review requests come with the iGNITE Package, and missed-call text back is a £100/month add-on for any plan.</div>
         <div class="pv-ctas">
           <a class="pv-btn pv-outline" href="./process.html">See How It Works →</a>
           <a class="pv-btn pv-whatsapp" target="_blank" rel="noopener" href="${WHATSAPP_URL}">
