@@ -151,3 +151,26 @@
   .plan-creatives-grid .plan-creative:nth-child(3){grid-column:1/-1;max-width:50%;justify-self:center}
   .plan-modal-ctas .btn{width:100%}
 }
+/* ---------- popup fixes: lone phone card + uncropped graphics ---------- */
+.plan-item.is-wide.is-flip{grid-template-columns:1fr 1.2fr}
+.plan-item.is-flip .plan-item-visual{order:2}
+.plan-item.is-phone-wide .plan-item-visual{min-height:320px}
+.plan-item.is-phone-wide .dev-phone.is-solo{width:170px}
+
+/* designed graphics: show the whole image instead of cropping the sides */
+.dev-screen.is-contain > img{object-fit:contain;object-position:center}
+.dev-phone .dev-screen.is-contain{background:#0b0f0d}
+
+@media(max-width:760px){
+  .plan-item.is-flip .plan-item-visual{order:0}
+  .plan-item.is-phone-wide .plan-item-visual{min-height:260px}
+}
+/* ---------- popup: phone cards always fill the row ---------- */
+.plan-items{grid-template-columns:repeat(2,1fr)}
+.plan-item.is-wide{grid-column:1/-1}
+.plan-item:not(.is-wide) .plan-item-visual{min-height:300px}
+.plan-item:not(.is-wide) .dev-phone.is-solo{width:165px}
+
+@media(max-width:760px){
+  .plan-items{grid-template-columns:1fr}
+}
