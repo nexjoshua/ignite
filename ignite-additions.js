@@ -3,6 +3,9 @@
    Works automatically on any page that has .aw-plan-card elements
    (homepage + services page). Edit the paths below to add your real
    images/videos; empty or missing files keep the placeholder showing.
+
+   fit: 'contain' → shows the whole image (use for designed graphics
+   that shouldn't be cropped). Leave it off for real screenshots.
 ===================================================================== */
 (function initPlanPeek() {
   const cards = document.querySelectorAll('.aw-plan-card');
@@ -14,26 +17,24 @@
   const PLANS = {
     foundation: {
       title: 'Foundation', price: '£500 / month',
-      intro: 'The core system every trade needs to stop losing leads and look credible online. Here is exactly what gets built for you.',
+      intro: 'A fast, credible website with booking built in — the base every trade needs to look the part online.',
       items: [
-        { device: 'mac', title: 'Responsive Website', desc: 'A fast, mobile-first website built from a niche-tested snapshot, with your reviews, services and booking built in from day one.', img: './images/plan-website.jpg', video: 'https://assets.cdn.filesafe.space/hNOfqrviXSOAm48tJDLo/media/6ab218d3bdaa5e26a985c4d4.mp4' },
-        { device: 'phone', title: 'Google Reviews Funnel', desc: 'The moment a job is done, your customer gets a text with a one-tap link to leave a Google review.', img: './images/google-reviews-demo.png', video: '' },
-        { device: 'phone', title: 'Missed-Call Text Back', desc: 'Miss a call and the caller gets an instant text, so the lead never goes cold while you are on a job.', img: './images/plan-missed-call.jpg', video: './videos/reviews-google.mp4' },
-        { device: 'phone', title: 'AI Booking System', desc: 'Customers book straight onto your real calendar through a conversation, with no back-and-forth.', img: './images/ai-booking-demo.png', video: '' },
+        { device: 'mac', title: 'Responsive Website', desc: 'A fast, mobile-first website built from a niche-tested snapshot, with your reviews and services front and centre.', img: './images/plan-website.jpg', video: 'https://assets.cdn.filesafe.space/hNOfqrviXSOAm48tJDLo/media/6ab218d3bdaa5e26a985c4d4.mp4' },
+        { device: 'phone', title: 'Built-In Booking System', desc: 'Customers book straight onto your real calendar, with no back-and-forth.', img: './images/ai-booking-demo.png', video: '', fit: 'contain' },
       ],
       creatives: [],
     },
-    growth: {
-      title: 'Growth', price: '£1,000 / month',
-      intro: 'Everything in Foundation, plus the automation and paid-traffic layer for trades ready to actively grow.',
+    ignite: {
+      title: 'iGNITE Package', price: '£700 / month · Most Popular',
+      intro: 'The full system: your website and booking, a reviews funnel, an AI receptionist and Meta ads — built, wired together and run for you.',
       items: [
-        { device: 'phone', title: 'Google Reviews Funnel', desc: 'Automated review requests after every job so your rating keeps climbing on its own.', img: './images/google-reviews-demo.png', video: '' },
-        { device: 'phone', title: 'Missed-Call Text Back', desc: 'Instant text replies to every missed call, 24/7.', img: './images/plan-missed-call.jpg', video: './videos/reviews-google.mp4' },
-        { device: 'phone', title: 'AI Booking System', desc: 'Conversational AI that qualifies the enquiry and books the job directly onto your calendar.', img: './images/ai-booking-demo.png', video: '' },
+        { device: 'mac', title: 'Website With Booking System', desc: 'A premium, mobile-first website with live booking onto your calendar, built from a niche-tested snapshot.', img: './images/plan-website.jpg', video: 'https://assets.cdn.filesafe.space/hNOfqrviXSOAm48tJDLo/media/6ab218d3bdaa5e26a985c4d4.mp4' },
+        { device: 'phone', title: 'Magic Google Reviews Funnel', desc: 'After every job, your customer gets a one-tap link to leave a Google review, so your rating keeps climbing on its own.', img: './images/google-reviews-demo.png', video: '', fit: 'contain' },
+        { device: 'phone', title: 'Chatbot / Voice AI', desc: 'An AI receptionist that answers, qualifies the enquiry and books the job — on chat or over the phone, 24/7.', img: './images/ai-booking-demo.png', video: '', fit: 'contain' },
       ],
-      creatives: ['./assets/special-offer.jpeg', './assets/design-highlights.jpeg', './assets/brand-catalog-cover.jpeg'],
-      creativesTitle: 'Scroll-Stopping Ad Creatives',
-      creativesDesc: 'Meta ad creatives built around your jobs, your brand and your area, refreshed every month.',
+      creatives: ['./assets/special-offer.jpeg', './assets/design-highlights.jpeg', './assets/smart-stove-hook.jpeg'],
+      creativesTitle: 'Meta Ads Management',
+      creativesDesc: 'Scroll-stopping ad creatives built around your jobs, brand and area, with campaigns managed end-to-end.',
     },
     ads: {
       title: 'Ads Management', price: '£500 / month · Standalone',
@@ -56,12 +57,13 @@
 
   function device(item) {
     const inner = media(item.img, item.video, item.title, item.title);
+    const fit = item.fit === 'contain' ? ' is-contain' : '';
     if (item.device === 'mac') {
       return `<div class="dev-mac is-solo"><div class="dev-mac-lid"><span class="dev-mac-notch"></span>
-        <div class="dev-screen dev-mac-screen">${inner}</div></div><div class="dev-mac-base"></div></div>`;
+        <div class="dev-screen dev-mac-screen${fit}">${inner}</div></div><div class="dev-mac-base"></div></div>`;
     }
     return `<div class="dev-phone is-solo"><span class="dev-phone-island"></span>
-      <div class="dev-screen dev-phone-screen">${inner}</div></div>`;
+      <div class="dev-screen dev-phone-screen${fit}">${inner}</div></div>`;
   }
 
   const overlay = document.createElement('div');
@@ -83,9 +85,16 @@
       </div>`;
 
     if (plan.items.length) {
+      // an odd phone out goes full-width (side by side) instead of leaving an empty gap
+      const phones = plan.items.filter((it) => it.device !== 'mac');
+      const lonePhone = phones.length % 2 === 1 ? phones[phones.length - 1] : null;
+
       html += '<div class="plan-items">';
       plan.items.forEach((item, i) => {
-        html += `<div class="plan-item${item.device === 'mac' ? ' is-wide' : ''}">
+        let cls = 'plan-item';
+        if (item.device === 'mac') cls += ' is-wide';
+        else if (item === lonePhone) cls += ' is-wide is-flip is-phone-wide';
+        html += `<div class="${cls}">
             <div class="plan-item-visual">${device(item)}</div>
             <div><span class="plan-item-num">Included ${String(i + 1).padStart(2, '0')}</span>
             <h4>${item.title}</h4><p>${item.desc}</p></div>
@@ -139,7 +148,7 @@
   function keyFor(card) {
     const t = ((card.querySelector('h4') || {}).textContent || '').toLowerCase();
     if (t.includes('foundation')) return 'foundation';
-    if (t.includes('growth')) return 'growth';
+    if (t.includes('ignite') || t.includes('growth')) return 'ignite';
     if (t.includes('ads')) return 'ads';
     return null;
   }
